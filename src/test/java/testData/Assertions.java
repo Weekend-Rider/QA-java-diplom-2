@@ -46,6 +46,24 @@ public class Assertions {
                 .path("ok");
     }
 
+    @Step("Assert the response code and return Ok key value")
+    public String assertCodeAndReturnKeyStringValue(Response response, int statusCode, String key) {
+        return response.then()
+                .assertThat()
+                .statusCode(statusCode)
+                .extract()
+                .path(key);
+    }
+
+    @Step("Assert the response code and return Ok key value")
+    public int assertCodeAndReturnKeyIntValue(Response response, int statusCode, String key) {
+        return response.then()
+                .assertThat()
+                .statusCode(statusCode)
+                .extract()
+                .path(key);
+    }
+
     @Step("Assert is Success value equals true")
     public void assertTrueValue(boolean action, String message) {
         assertTrue(message, action);
