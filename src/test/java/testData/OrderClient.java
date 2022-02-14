@@ -11,7 +11,18 @@ public class OrderClient extends RestAssuredClient {
 
     public static final String ORDERS_PATH = "/orders/";
 
-   @Step("Login the customer")
+
+   @Step("Make an order with the authorisation")
+    public Response makeOrder(Order order, String token) {
+        return given()
+                .spec(getBaseSpec())
+                .auth().oauth2(token)
+                .body(order)
+                .when()
+                .post(ORDERS_PATH);
+    }
+
+    @Step("ake an order without the authorisation")
     public Response makeOrder(Order order) {
         return given()
                 .spec(getBaseSpec())
@@ -19,41 +30,24 @@ public class OrderClient extends RestAssuredClient {
                 .when()
                 .post(ORDERS_PATH);
     }
-  /*   @Step("Update the customer")
-    public Response authoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
-        String token = getAccessToken(response);
+
+    @Step("Get the customer's orders list with authorisation")
+    public Response getCustomerOrdersListAuthorised(String token) {
+
         return given()
                 .spec(getBaseSpec())
                 .auth().oauth2(token)
-                .body(customerCredentials)
                 .when()
-                .patch(AUTH_PATH + "user");
+                .get(ORDERS_PATH);
     }
 
-    @Step("Update the customer")
-    public Response notAuthoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
+    @Step("Get the customer's orders list without authorisation")
+    public Response getCustomerOrdersListNotAuthorised() {
+
         return given()
                 .spec(getBaseSpec())
-                .body(customerCredentials)
                 .when()
-                .patch(AUTH_PATH + "user");
+                .get(ORDERS_PATH);
     }
-
-    @Step("Get customer accessToken")
-    public String getAccessToken(Response response) {
-        String token = response.then()
-                .extract()
-                .path("accessToken");
-
-        return token.substring(7);
-
-    }
-    @Step("Get customer refreshToken")
-    public String getRefreshToken(Response response) {
-        return response.then()
-                .extract()
-                .path("refreshToken");
-    }
-*/
 
 }

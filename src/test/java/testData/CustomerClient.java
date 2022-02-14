@@ -26,7 +26,7 @@ public class CustomerClient extends RestAssuredClient {
                 .when()
                 .post(AUTH_PATH + "login");
     }
-    @Step("Update the customer")
+    @Step("Update the customer, authorised")
     public Response authoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
         String token = getAccessToken(response);
         return given()
@@ -37,7 +37,7 @@ public class CustomerClient extends RestAssuredClient {
                 .patch(AUTH_PATH + "user");
     }
 
-    @Step("Update the customer")
+    @Step("Update the customer, not authorised")
     public Response notAuthoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
         return given()
                 .spec(getBaseSpec())
@@ -46,16 +46,16 @@ public class CustomerClient extends RestAssuredClient {
                 .patch(AUTH_PATH + "user");
     }
 
-    @Step("Get customer accessToken")
+    @Step("Get the customer's accessToken")
     public String getAccessToken(Response response) {
         String token = response.then()
                 .extract()
                 .path("accessToken");
 
         return token.substring(7);
-
     }
-    @Step("Get customer refreshToken")
+
+    @Step("Get the customer's refreshToken")
     public String getRefreshToken(Response response) {
         return response.then()
                 .extract()

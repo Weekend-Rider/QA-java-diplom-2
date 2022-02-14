@@ -4,6 +4,8 @@ import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.hamcrest.Matcher;
 
+import java.util.ArrayList;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -48,6 +50,15 @@ public class Assertions {
 
     @Step("Assert the response code and return Ok key value")
     public String assertCodeAndReturnKeyStringValue(Response response, int statusCode, String key) {
+        return response.then()
+                .assertThat()
+                .statusCode(statusCode)
+                .extract()
+                .path(key);
+    }
+
+    @Step("Assert the response code and return Ok key value")
+    public ArrayList<String> assertCodeAndReturnKeyArrayValue(Response response, int statusCode, String key) {
         return response.then()
                 .assertThat()
                 .statusCode(statusCode)
