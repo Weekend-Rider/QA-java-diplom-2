@@ -2,87 +2,82 @@ package testData;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
-import org.hamcrest.Matcher;
 
-import java.util.ArrayList;
+import static org.hamcrest.Matchers.*;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class Assertions {
 
-    @Step("Assert the response code and return Success key value")
-    public boolean assertCodeAndReturnSuccessValue(Response response, int statusCode) {
-        return response.then()
-                .assertThat()
-                .statusCode(statusCode)
-                .extract()
-                .path("success");
-    }
-
-    @Step("Assert the response code, key and String value")
-    public void assertCodeAndBodyKeyValue(Response response, int statusCode, String key, String value) {
+    @Step("Проверка кода ответа")
+    public void assertStatusCode(Response response, int statusCode) {
         response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .and()
-                .body(key, equalTo(value));
+                .statusCode(statusCode);
     }
 
-    @Step("Assert the response code, key and Matcher value")
-    public void assertCodeAndBodyKeyValue(Response response, int statusCode, String key, Matcher<Object> value) {
+    @Step("Проверяем значение success")
+    public void assertSuccessValue(Response response, boolean value) {
         response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .and()
-                .body(key, value);
+                .body("success", equalTo(value));
     }
 
-    @Step("Assert the response code and return Ok key value")
-    public boolean assertCodeAndReturnOkValue(Response response, int statusCode) {
-        return response.then()
+    @Step("Проверяем тело заказа с авторизацией")
+    public void assertOrderBodyAuthorised(Response response) {
+         response.then()
+                 .assertThat()
+                 .body("name", notNullValue())
+                 .and().body("order.ingredients", not(emptyArray()))
+                 .and().body("order._id", not(equalTo(0)))
+                 .and().body("order.owner", notNullValue())
+                 .and().body("order.status", notNullValue())
+                 .and().body("order.name", notNullValue())
+                 .and().body("order.createdAt", notNullValue())
+                 .and().body("order.updatedAt", notNullValue())
+                 .and().body("order.number", not(equalTo(0)))
+                 .and().body("order.price", not(equalTo(0)));
+    }
+
+    @Step("Проверяем тело заказа без авторизации")
+    public void assertOrderBodyNotAuthorised(Response response) {
+        response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .extract()
-                .path("ok");
+                .body("name", notNullValue())
+                .and().body("order.number", not(equalTo(0)));
     }
 
-    @Step("Assert the response code and return Ok key value")
-    public String assertCodeAndReturnKeyStringValue(Response response, int statusCode, String key) {
-        return response.then()
+    @Step("Проверяем значение ключа message")
+    public void assertMessageValue(Response response, String message) {
+         response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .extract()
-                .path(key);
+                .body("message", equalTo(message));
     }
 
-    @Step("Assert the response code and return Ok key value")
-    public ArrayList<String> assertCodeAndReturnKeyArrayValue(Response response, int statusCode, String key) {
-        return response.then()
+    @Step("Проверяем тело списка заказов пользователя с авторизацией")
+    public void assertCustomersOrdersListBodyAuthorised(Response response) {
+        response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .extract()
-                .path(key);
+                .and().body("order", not(emptyArray()))
+                .and().body("total", not(equalTo(0)))
+                .and().body("totalToday", not(equalTo(0)));
     }
 
-    @Step("Assert the response code and return Ok key value")
-    public int assertCodeAndReturnKeyIntValue(Response response, int statusCode, String key) {
-        return response.then()
+    @Step("Проверяем тело покупателя с авторизацией")
+    public void assertCustomerBody(Response response) {
+        response.then()
                 .assertThat()
-                .statusCode(statusCode)
-                .extract()
-                .path(key);
+                .body("user.email", notNullValue())
+                .and().body("user.name", notNullValue())
+                .and().body("accessToken", notNullValue())
+                .and().body("accessToken", notNullValue());
     }
 
-    @Step("Assert is Success value equals true")
-    public void assertTrueValue(boolean action, String message) {
-        assertTrue(message, action);
-    }
-
-    @Step("Assert is Success value equals false")
-    public void assertFalseValue(boolean action, String message) {
-        assertFalse(message, action);
+    @Step("Проверяем тело покупателя с авторизацией")
+    public void assertCustomerBodyChangeData(Response response, String newMail, String newName) {
+        response.then()
+                .assertThat()
+                .body("user.email", equalTo(newMail))
+                .and().body("user.name", equalTo(newName));
     }
 
 }

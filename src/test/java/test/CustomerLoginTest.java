@@ -21,33 +21,39 @@ public class CustomerLoginTest {
     }
 
     @Test
-    @DisplayName("Check is the customer authorized")
+    @DisplayName("Проверка авторизации клиента")
     public void customerIsAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
         customerClient.registerCustomer(customer);
         Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isAuthorised, "Customer login failed");
+
+        assertions.assertStatusCode(response, 200);
+        assertions.assertSuccessValue(response,true);
+        assertions.assertCustomerBody(response);
     }
 
     @Test
-    @DisplayName("Check is the customer cannot authorise with wrong email")
+    @DisplayName("Проверка, что нельзя авторизовать клиента, если не указан email")
     public void customerCannotAuthoriseWrongEmailTest() {
         Customer customer = Customer.generateRandomCustomer();
         customerClient.registerCustomer(customer);
-        Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentialsWrongEmail(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 401);
-        assertions.assertFalseValue(isAuthorised, "Customer with wrong email should not be authorised");
+        Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentialsIncorrectEmail(customer));
+
+        assertions.assertStatusCode(response, 401);
+        assertions.assertSuccessValue(response,false);
+        assertions.assertMessageValue(response, "email or password are incorrect");
     }
 
     @Test
-    @DisplayName("Check is the customer cannot authorise with wrong password")
+    @DisplayName("Проверка, что нельзя авторизовать клиента, если не указан пароль")
     public void customerCannotAuthoriseWrongPasswordTest() {
         Customer customer = Customer.generateRandomCustomer();
         customerClient.registerCustomer(customer);
-        Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentialsWrongPassword(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 401);
-        assertions.assertFalseValue(isAuthorised, "Customer with wrong password should not be authorised");
+        Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentialsIncorrectPassword(customer));
+
+        assertions.assertStatusCode(response, 401);
+        assertions.assertSuccessValue(response,false);
+        assertions.assertMessageValue(response, "email or password are incorrect");
     }
 
 }

@@ -43,5 +43,4 @@ public class Customer {
         return new Customer(email, password, null);
     }
 
-
 }

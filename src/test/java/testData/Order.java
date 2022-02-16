@@ -1,7 +1,5 @@
 package testData;
 
-import com.github.javafaker.Faker;
-
 import java.util.ArrayList;
 
 
@@ -14,12 +12,10 @@ public class Order {
     }
 
     public static Order generateOrderData(ArrayList<String> ingredientsOrderList) {
-
         return new Order(ingredientsOrderList);
     }
 
     public static Order generateOrderData() {
-
         return new Order(null);
     }
 

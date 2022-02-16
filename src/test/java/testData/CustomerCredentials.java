@@ -1,13 +1,10 @@
 package testData;
 
-import io.restassured.response.Response;
-
 public class CustomerCredentials {
 
     public String email;
     public String password;
     public String name;
-
 
     public CustomerCredentials(String email, String password) {
         this.email = email;
@@ -24,11 +21,11 @@ public class CustomerCredentials {
        return new CustomerCredentials(customer.email, customer.password);
     }
 
-    public static CustomerCredentials getCustomerCredentialsWrongEmail(Customer customer) {
+    public static CustomerCredentials getCustomerCredentialsIncorrectEmail(Customer customer) {
         return new CustomerCredentials("wrong" + customer.email, customer.password);
     }
 
-    public static CustomerCredentials getCustomerCredentialsWrongPassword(Customer customer) {
+    public static CustomerCredentials getCustomerCredentialsIncorrectPassword(Customer customer) {
         return new CustomerCredentials(customer.email, "wrong" + customer.password);
     }
 
@@ -40,7 +37,4 @@ public class CustomerCredentials {
         return new CustomerCredentials(customer.email, customer.password, "new" + customer.name);
     }
 
-    public String getEmail() {
-        return email;
-    }
 }

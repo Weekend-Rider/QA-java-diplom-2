@@ -21,55 +21,57 @@ public class CustomerChangeTest {
     }
 
     @Test
-    @DisplayName("Check is the customer can change email when authorized")
+    @DisplayName("Проверка изменения email пользователя с авторизацией")
     public void customerChangeEmailWhenAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
-        customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isAuthorised, "Customer email change failed");
-        Response responseChanged = customerClient.authoriseAndUpdateCustomer(CustomerCredentials.getCustomerCredentialsNewEmail(customer), response);
-        boolean isChanged = assertions.assertCodeAndReturnSuccessValue(responseChanged, 200);
-        assertions.assertCodeAndBodyKeyValue(responseChanged, 200, "user.email", "new" + customer.email );
+        assertions.assertStatusCode(response, 200);
+        String token = customerClient.getAccessToken(response);
+        Response responseChanged = customerClient.updateCustomerWithAuthorisation(CustomerCredentials.getCustomerCredentialsNewEmail(customer), token);
+
+        assertions.assertStatusCode(responseChanged, 200);
+        assertions.assertSuccessValue(responseChanged,true);
+        assertions.assertCustomerBodyChangeData(responseChanged, "new" + customer.email, customer.name);
     }
 
     @Test
-    @DisplayName("Check is the customer can change name when authorized")
+    @DisplayName("Проверка изменения имени пользователя с авторизацией")
     public void customerChangeNameWhenAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
-        customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isAuthorised, "Customer email change failed");
-        Response responseChanged = customerClient.authoriseAndUpdateCustomer(CustomerCredentials.getCustomerCredentialsNewName(customer), response);
-        boolean isChanged = assertions.assertCodeAndReturnSuccessValue(responseChanged, 200);
-        assertions.assertCodeAndBodyKeyValue(responseChanged, 200, "user.name", "new" + customer.name );
+        assertions.assertStatusCode(response, 200);
+        String token = customerClient.getAccessToken(response);
+        Response responseChanged = customerClient.updateCustomerWithAuthorisation(CustomerCredentials.getCustomerCredentialsNewName(customer), token);
+
+        assertions.assertStatusCode(responseChanged, 200);
+        assertions.assertSuccessValue(responseChanged,true);
+        assertions.assertCustomerBodyChangeData(responseChanged, customer.email, "new" + customer.name);
     }
 
     @Test
-    @DisplayName("Check is the customer cannot change name when not authorized")
+    @DisplayName("Проверка невозможнсти изменения email пользователя без авторизации")
     public void customerChangeEmailWhenNotAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
-        customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isAuthorised, "Customer email change failed");
-        Response responseChanged = customerClient.notAuthoriseAndUpdateCustomer(CustomerCredentials.getCustomerCredentialsNewName(customer), response);
-        boolean isChanged = assertions.assertCodeAndReturnSuccessValue(responseChanged, 401);
-        assertions.assertCodeAndBodyKeyValue(responseChanged, 401, "message", "You should be authorised");
+        assertions.assertStatusCode(response, 200);
+        Response responseChanged = customerClient.updateCustomerNoAuthorisation(CustomerCredentials.getCustomerCredentialsNewEmail(customer));
+
+        assertions.assertStatusCode(responseChanged, 401);
+        assertions.assertSuccessValue(responseChanged,false);
+        assertions.assertMessageValue(responseChanged, "You should be authorised");
     }
 
     @Test
-    @DisplayName("Check is the customer cannot change name when not authorized")
+    @DisplayName("Проверка невозможнсти изменения имени пользователя без авторизации")
     public void customerChangeNameWhenNotAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
-        customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isAuthorised, "Customer email change failed");
-        Response responseChanged = customerClient.notAuthoriseAndUpdateCustomer(CustomerCredentials.getCustomerCredentialsNewName(customer), response);
-        boolean isChanged = assertions.assertCodeAndReturnSuccessValue(responseChanged, 401);
-        assertions.assertCodeAndBodyKeyValue(responseChanged, 401, "message", "You should be authorised");
+        assertions.assertStatusCode(response, 200);
+        Response responseChanged = customerClient.updateCustomerNoAuthorisation(CustomerCredentials.getCustomerCredentialsNewName(customer));
+
+        assertions.assertStatusCode(responseChanged, 401);
+        assertions.assertSuccessValue(responseChanged,false);
+        assertions.assertMessageValue(responseChanged, "You should be authorised");
     }
 
 }

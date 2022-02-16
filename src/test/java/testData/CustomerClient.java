@@ -9,7 +9,7 @@ public class CustomerClient extends RestAssuredClient {
 
     public static final String AUTH_PATH = "/auth/";
 
-    @Step("Register a new customer")
+    @Step("Регистрируем нового клиента")
     public Response registerCustomer(Customer customer) {
         return given()
                 .spec(getBaseSpec())
@@ -18,7 +18,7 @@ public class CustomerClient extends RestAssuredClient {
                 .post(AUTH_PATH + "register");
     }
 
-    @Step("Login the customer")
+    @Step("Авторизуем клиента")
     public Response loginCustomer(CustomerCredentials customerCredentials) {
         return given()
                 .spec(getBaseSpec())
@@ -26,9 +26,9 @@ public class CustomerClient extends RestAssuredClient {
                 .when()
                 .post(AUTH_PATH + "login");
     }
-    @Step("Update the customer, authorised")
-    public Response authoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
-        String token = getAccessToken(response);
+
+    @Step("Обновляем данные клиента, запрос с авторизацией")
+    public Response updateCustomerWithAuthorisation(CustomerCredentials customerCredentials, String token) {
         return given()
                 .spec(getBaseSpec())
                 .auth().oauth2(token)
@@ -37,8 +37,8 @@ public class CustomerClient extends RestAssuredClient {
                 .patch(AUTH_PATH + "user");
     }
 
-    @Step("Update the customer, not authorised")
-    public Response notAuthoriseAndUpdateCustomer(CustomerCredentials customerCredentials, Response response) {
+    @Step("Обновляем данные клиента, запрос без авторизации")
+    public Response updateCustomerNoAuthorisation(CustomerCredentials customerCredentials) {
         return given()
                 .spec(getBaseSpec())
                 .body(customerCredentials)
@@ -46,7 +46,7 @@ public class CustomerClient extends RestAssuredClient {
                 .patch(AUTH_PATH + "user");
     }
 
-    @Step("Get the customer's accessToken")
+    @Step("Получаем accessToken клиента")
     public String getAccessToken(Response response) {
         String token = response.then()
                 .extract()
@@ -55,7 +55,7 @@ public class CustomerClient extends RestAssuredClient {
         return token.substring(7);
     }
 
-    @Step("Get the customer's refreshToken")
+    @Step("Получаем refreshToken клиента")
     public String getRefreshToken(Response response) {
         return response.then()
                 .extract()

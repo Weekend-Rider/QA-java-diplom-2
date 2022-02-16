@@ -19,145 +19,108 @@ public class OrdersTest {
     public void setUp() {
         customerClient = new CustomerClient();
         ingredientsClient = new IngredientsClient();
-        assertions = new Assertions();
         orderClient = new OrderClient();
+        assertions = new Assertions();
     }
 
     @Test
-    @DisplayName("Check is a new order created with customer authorisation and correct ingredients")
+    @DisplayName("Проверка создания заказа с авторизацией клиента и корректными ингредиентами")
     public void makeOrderWithAuthorisationAndIngredientsTest() {
         Customer customer = Customer.generateRandomCustomer();
-        customerClient.registerCustomer(customer);
-        Response customerLogin = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(customerLogin, 200);
-        System.out.println(isAuthorised);
-
+        Response newCustomer = customerClient.registerCustomer(customer);
+        assertions.assertStatusCode(newCustomer,200);
+        String token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
-        System.out.println(ingredientsList);
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
-        String token = customerClient.getAccessToken(customerLogin);
         Order order = Order.generateOrderData(ingredientsOrderList);
         Response response = orderClient.makeOrder(order, token);
 
-        boolean isCreated = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isCreated, "Order creation failed");
-        String nameValue = assertions.assertCodeAndReturnKeyStringValue(response,200, "name");
-        System.out.println(nameValue);
-        int numberValue = assertions.assertCodeAndReturnKeyIntValue(response,200, "order.number");
-        System.out.println(numberValue);
+        assertions.assertStatusCode(response,200);
+        assertions.assertSuccessValue(response,true);
+        assertions.assertOrderBodyAuthorised(response);
     }
 
     @Test
-    @DisplayName("Check is a new order created without customer authorisation and correct ingredients")
+    @DisplayName("Проверка создания заказа без авторизациии клиента и корректными ингредиентами")
     public void makeOrderNoAuthorisationAndIngredientsTest() {
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
-        System.out.println(ingredientsList);
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
-
         Order order = Order.generateOrderData(ingredientsOrderList);
         Response response = orderClient.makeOrder(order);
 
-        boolean isCreated = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isCreated, "Order creation failed");
-        String nameValue = assertions.assertCodeAndReturnKeyStringValue(response,200, "name");
-        System.out.println(nameValue);
-        int numberValue = assertions.assertCodeAndReturnKeyIntValue(response,200, "order.number");
-        System.out.println(numberValue);
+        assertions.assertStatusCode(response,200);
+        assertions.assertSuccessValue(response,true);
+        assertions.assertOrderBodyNotAuthorised(response);
     }
 
     @Test
-    @DisplayName("Check is a new order created with customer authorisation and no ingredients")
+    @DisplayName("Проверка создания заказа с авторизацией клиента и без ингредиентов")
     public void makeOrderWithAuthorisationAndNoIngredientsTest() {
         Customer customer = Customer.generateRandomCustomer();
-        customerClient.registerCustomer(customer);
-        Response customerLogin = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(customerLogin, 200);
-        System.out.println(isAuthorised);
-        String token = customerClient.getAccessToken(customerLogin);
+        Response newCustomer = customerClient.registerCustomer(customer);
+        assertions.assertStatusCode(newCustomer,200);
+        String token = customerClient.getAccessToken(newCustomer);
         Order order = Order.generateOrderData();
         Response response = orderClient.makeOrder(order,token);
 
-        boolean isCreated = assertions.assertCodeAndReturnSuccessValue(response, 400);
-        assertions.assertFalseValue(isCreated, "Order cannot be created without any ingredients");
-        String nameValue = assertions.assertCodeAndReturnKeyStringValue(response,400, "message");
-        System.out.println(nameValue);
-
+        assertions.assertStatusCode(response,400);
+        assertions.assertSuccessValue(response,false);
+        assertions.assertMessageValue(response, "Ingredient ids must be provided");
     }
 
     @Test
-    @DisplayName("Check is a new order created with customer authorisation and incorrect ingredients ids")
+    @DisplayName("Проверка создания заказа с авторизацией клиента и некорректными id ингредиентов")
     public void makeOrderWithAuthorisationAndIncorrectIngredientsTest() {
         Customer customer = Customer.generateRandomCustomer();
-        customerClient.registerCustomer(customer);
-        Response customerLogin = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(customerLogin, 200);
-        System.out.println(isAuthorised);
-
+        Response newCustomer = customerClient.registerCustomer(customer);
+        assertions.assertStatusCode(newCustomer,200);
+        String token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsOrderList = ingredientsClient.getIngredientsOrderListIncorrect();
-        String token = customerClient.getAccessToken(customerLogin);
         Order order = Order.generateOrderData(ingredientsOrderList);
         Response response = orderClient.makeOrder(order,token);
 
-        response.then()
-                .assertThat()
-                .statusCode(500);
-
+        assertions.assertStatusCode(response,500);
+        assertions.assertSuccessValue(response,false);
     }
 
     @Test
-    @DisplayName("Check is the orders list with customer authorisation can be received")
+    @DisplayName("Проверка получения списка заказов клиента с авторизацией")
     public void getCustomerOrdersListAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
-        customerClient.registerCustomer(customer);
-        Response customerLogin = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(customerLogin, 200);
-        System.out.println(isAuthorised);
-        String token = customerClient.getAccessToken(customerLogin);
-        System.out.println(token);
+        Response newCustomer = customerClient.registerCustomer(customer);
+        assertions.assertStatusCode(newCustomer,200);
+        String token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
-        System.out.println(ingredientsList);
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
-
         Order order = Order.generateOrderData(ingredientsOrderList);
         orderClient.makeOrder(order,token);
         orderClient.makeOrder(order,token);
         orderClient.makeOrder(order,token);
-
         Response response = orderClient.getCustomerOrdersListAuthorised(token);
 
-        boolean isGot = assertions.assertCodeAndReturnSuccessValue(response, 200);
-        assertions.assertTrueValue(isGot, "Customer order list getting failed");
-
-        ArrayList<String> nameValue = assertions.assertCodeAndReturnKeyArrayValue(response,200, "orders.number");
-        System.out.println(nameValue);
+        assertions.assertStatusCode(response,200);
+        assertions.assertSuccessValue(response,true);
+        assertions.assertCustomersOrdersListBodyAuthorised(response);
     }
 
     @Test
-    @DisplayName("Check is the orders list with customer authorisation cannot be received")
+    @DisplayName("Проверка невозможности получения списка заказов клиента без авторизации")
     public void getCustomerOrdersListNotAuthorisedTest() {
         Customer customer = Customer.generateRandomCustomer();
-        customerClient.registerCustomer(customer);
-        Response customerLogin = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
-        boolean isAuthorised = assertions.assertCodeAndReturnSuccessValue(customerLogin, 200);
-        System.out.println(isAuthorised);
-        String token = customerClient.getAccessToken(customerLogin);
-        System.out.println(token);
+        Response newCustomer = customerClient.registerCustomer(customer);
+        assertions.assertStatusCode(newCustomer,200);
+        String token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
-        System.out.println(ingredientsList);
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
-
         Order order = Order.generateOrderData(ingredientsOrderList);
         orderClient.makeOrder(order,token);
         orderClient.makeOrder(order,token);
         orderClient.makeOrder(order,token);
-
         Response response = orderClient.getCustomerOrdersListNotAuthorised();
 
-        boolean isGot = assertions.assertCodeAndReturnSuccessValue(response, 401);
-        assertions.assertFalseValue(isGot, "Customer order list getting failed");
-
-        String nameValue = assertions.assertCodeAndReturnKeyStringValue(response,401, "message");
-        System.out.println(nameValue);
+        assertions.assertStatusCode(response,401);
+        assertions.assertSuccessValue(response,false);
+        assertions.assertMessageValue(response, "You should be authorised");
 
     }
 
