@@ -2,6 +2,7 @@ package test;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import testData.*;
@@ -14,6 +15,7 @@ public class OrdersTest {
     public IngredientsClient ingredientsClient;
     public Assertions assertions;
     public OrderClient orderClient;
+    public String token;
 
     @Before
     public void setUp() {
@@ -23,13 +25,18 @@ public class OrdersTest {
         assertions = new Assertions();
     }
 
+    @After
+    public void tearDown() {
+        customerClient.deleteCustomer(token);
+    }
+
     @Test
     @DisplayName("Проверка создания заказа с авторизацией клиента и корректными ингредиентами")
     public void makeOrderWithAuthorisationAndIngredientsTest() {
         Customer customer = Customer.generateRandomCustomer();
         Response newCustomer = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(newCustomer,200);
-        String token = customerClient.getAccessToken(newCustomer);
+        token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
         Order order = Order.generateOrderData(ingredientsOrderList);
@@ -59,7 +66,7 @@ public class OrdersTest {
         Customer customer = Customer.generateRandomCustomer();
         Response newCustomer = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(newCustomer,200);
-        String token = customerClient.getAccessToken(newCustomer);
+        token = customerClient.getAccessToken(newCustomer);
         Order order = Order.generateOrderData();
         Response response = orderClient.makeOrder(order,token);
 
@@ -74,13 +81,12 @@ public class OrdersTest {
         Customer customer = Customer.generateRandomCustomer();
         Response newCustomer = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(newCustomer,200);
-        String token = customerClient.getAccessToken(newCustomer);
+        token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsOrderList = ingredientsClient.getIngredientsOrderListIncorrect();
         Order order = Order.generateOrderData(ingredientsOrderList);
         Response response = orderClient.makeOrder(order,token);
 
         assertions.assertStatusCode(response,500);
-        assertions.assertSuccessValue(response,false);
     }
 
     @Test
@@ -89,7 +95,7 @@ public class OrdersTest {
         Customer customer = Customer.generateRandomCustomer();
         Response newCustomer = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(newCustomer,200);
-        String token = customerClient.getAccessToken(newCustomer);
+        token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
         Order order = Order.generateOrderData(ingredientsOrderList);
@@ -109,7 +115,7 @@ public class OrdersTest {
         Customer customer = Customer.generateRandomCustomer();
         Response newCustomer = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(newCustomer,200);
-        String token = customerClient.getAccessToken(newCustomer);
+        token = customerClient.getAccessToken(newCustomer);
         ArrayList<String> ingredientsList = ingredientsClient.getAllIngredientsList();
         ArrayList<String> ingredientsOrderList =  ingredientsClient.getIngredientsOrderList(ingredientsList);
         Order order = Order.generateOrderData(ingredientsOrderList);

@@ -2,6 +2,7 @@ package test;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import testData.Assertions;
@@ -13,11 +14,17 @@ public class CustomerLoginTest {
 
     public CustomerClient customerClient;
     public Assertions assertions;
+    public String token;
 
     @Before
     public void setUp() {
         customerClient = new CustomerClient();
         assertions = new Assertions();
+    }
+
+    @After
+    public void tearDown() {
+        customerClient.deleteCustomer(token);
     }
 
     @Test
@@ -26,6 +33,7 @@ public class CustomerLoginTest {
         Customer customer = Customer.generateRandomCustomer();
         customerClient.registerCustomer(customer);
         Response response = customerClient.loginCustomer(CustomerCredentials.getCustomerCredentials(customer));
+        token = customerClient.getAccessToken(response);
 
         assertions.assertStatusCode(response, 200);
         assertions.assertSuccessValue(response,true);

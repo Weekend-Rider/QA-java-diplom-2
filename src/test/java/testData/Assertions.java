@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.*;
 
 public class Assertions {
 
-    @Step("Проверка кода ответа")
+    @Step("Проверяем кода ответа")
     public void assertStatusCode(Response response, int statusCode) {
         response.then()
                 .assertThat()
@@ -22,7 +22,7 @@ public class Assertions {
                 .body("success", equalTo(value));
     }
 
-    @Step("Проверяем тело заказа с авторизацией")
+    @Step("Проверяем тело ответа для заказа с авторизацией")
     public void assertOrderBodyAuthorised(Response response) {
          response.then()
                  .assertThat()
@@ -38,7 +38,7 @@ public class Assertions {
                  .and().body("order.price", not(equalTo(0)));
     }
 
-    @Step("Проверяем тело заказа без авторизации")
+    @Step("Проверяем тело ответа для заказа без авторизации")
     public void assertOrderBodyNotAuthorised(Response response) {
         response.then()
                 .assertThat()
@@ -53,7 +53,7 @@ public class Assertions {
                 .body("message", equalTo(message));
     }
 
-    @Step("Проверяем тело списка заказов пользователя с авторизацией")
+    @Step("Проверяем тело ответа для списка заказов пользователя с авторизацией")
     public void assertCustomersOrdersListBodyAuthorised(Response response) {
         response.then()
                 .assertThat()
@@ -62,7 +62,7 @@ public class Assertions {
                 .and().body("totalToday", not(equalTo(0)));
     }
 
-    @Step("Проверяем тело покупателя с авторизацией")
+    @Step("Проверяем тело ответа для покупателя с авторизацией")
     public void assertCustomerBody(Response response) {
         response.then()
                 .assertThat()
@@ -72,7 +72,7 @@ public class Assertions {
                 .and().body("accessToken", notNullValue());
     }
 
-    @Step("Проверяем тело покупателя с авторизацией")
+    @Step("Проверяем тело ответа для покупателя с авторизацией")
     public void assertCustomerBodyChangeData(Response response, String newMail, String newName) {
         response.then()
                 .assertThat()

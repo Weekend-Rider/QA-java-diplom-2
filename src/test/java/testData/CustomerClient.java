@@ -55,12 +55,17 @@ public class CustomerClient extends RestAssuredClient {
         return token.substring(7);
     }
 
-    @Step("Получаем refreshToken клиента")
-    public String getRefreshToken(Response response) {
-        return response.then()
-                .extract()
-                .path("refreshToken");
+    @Step("Удаляем клиента")
+    public void deleteCustomer(String token) {
+        if (token == null) {
+            return;
+        }
+        given()
+                .spec(getBaseSpec())
+                .auth().oauth2(token)
+                .when()
+                .delete(AUTH_PATH + "user").then()
+                .statusCode(202);
     }
-
 
 }

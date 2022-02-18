@@ -2,6 +2,7 @@ package test;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import testData.Assertions;
@@ -13,11 +14,17 @@ public class CustomerChangeTest {
 
     public CustomerClient customerClient;
     public Assertions assertions;
+    public String token;
 
     @Before
     public void setUp() {
         customerClient = new CustomerClient();
         assertions = new Assertions();
+    }
+
+    @After
+    public void tearDown() {
+        customerClient.deleteCustomer(token);
     }
 
     @Test
@@ -26,7 +33,7 @@ public class CustomerChangeTest {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(response, 200);
-        String token = customerClient.getAccessToken(response);
+        token = customerClient.getAccessToken(response);
         Response responseChanged = customerClient.updateCustomerWithAuthorisation(CustomerCredentials.getCustomerCredentialsNewEmail(customer), token);
 
         assertions.assertStatusCode(responseChanged, 200);
@@ -40,7 +47,7 @@ public class CustomerChangeTest {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(response, 200);
-        String token = customerClient.getAccessToken(response);
+        token = customerClient.getAccessToken(response);
         Response responseChanged = customerClient.updateCustomerWithAuthorisation(CustomerCredentials.getCustomerCredentialsNewName(customer), token);
 
         assertions.assertStatusCode(responseChanged, 200);
@@ -54,6 +61,7 @@ public class CustomerChangeTest {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(response, 200);
+        token = customerClient.getAccessToken(response);
         Response responseChanged = customerClient.updateCustomerNoAuthorisation(CustomerCredentials.getCustomerCredentialsNewEmail(customer));
 
         assertions.assertStatusCode(responseChanged, 401);
@@ -67,6 +75,7 @@ public class CustomerChangeTest {
         Customer customer = Customer.generateRandomCustomer();
         Response response = customerClient.registerCustomer(customer);
         assertions.assertStatusCode(response, 200);
+        token = customerClient.getAccessToken(response);
         Response responseChanged = customerClient.updateCustomerNoAuthorisation(CustomerCredentials.getCustomerCredentialsNewName(customer));
 
         assertions.assertStatusCode(responseChanged, 401);
